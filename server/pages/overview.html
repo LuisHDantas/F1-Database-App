@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Overview</title>
+    <style>
+        .admin {
+            color: red;
+            font-size: 2em;
+            font-weight: bold;
+        }
+        .drivers-count {
+            color: blue;
+            font-size: 1.5em;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>(Loading...)</h1>
+    <button id="reportButton">Go to Report</button>
+    <script>
+        document.getElementById('reportButton').addEventListener('click', () => {
+            window.location.href = '/report';
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            // Fetch the user ID and display it
+            const originalIdResponse = await fetch('/user/original_id');
+            const originalIdData = await originalIdResponse.json();
+            document.querySelector('h1').textContent = originalIdData.Original_ID ? `${originalIdData.Original_ID}` : '(ID not found)';
+            
+            // Fetch the user role and process accordingly
+            const roleResponse = await fetch('/user/role');
+            const roleData = await roleResponse.json();
+            
+            if (roleData && roleData.Role === 'Administrador') {
+                // Show button to go to /driver/create
+                const createDriverButton = document.createElement('button');
+                createDriverButton.textContent = 'Create Driver';
+                createDriverButton.addEventListener('click', () => {
+                    window.location.href = '/driver/create';
+                });
+                document.body.appendChild(createDriverButton);
+
+                // Show button to go to /constructor/create
+                const createConstructorButton = document.createElement('button');
+                createConstructorButton.textContent = 'Create Constructor';
+                createConstructorButton.addEventListener('click', () => {
+                    window.location.href = '/constructor/create';
+                });
+                document.body.appendChild(createConstructorButton);
+
+                // Show that the role is ADMINISTRADOR
+                const roleElement = document.createElement('div');
+                roleElement.textContent = 'ADMINISTRADOR';
+                roleElement.classList.add('admin');
+                document.body.appendChild(roleElement);
+
+
+                // Show total number of drivers
+                const driversCountResponse = await fetch('/drivers/count');
+                const driversCountData = await driversCountResponse.json();
+            
+                const driversCountElement = document.createElement('div');
+                driversCountElement.textContent = `Drivers: ${driversCountData.count}`;
+                driversCountElement.classList.add('drivers-count');
+                document.body.appendChild(driversCountElement);
+
+                // Show number of drivers per constructor
+                const num_constructors = await fetch('/constructors/count');
+                const num_constructors_data = await num_constructors.json();
+                console.log('Number of constructors:', num_constructors_data);
+
+                const num_constructors_element = document.createElement('div');
+                num_constructors_element.textContent = `Number of constructors: ${num_constructors_data.count}`;
+                document.body.appendChild(num_constructors_element);
+
+                const constructorsDriversCountResponse = await fetch('/constructors/drivers/count');
+                const constructorsDriversCountData = await constructorsDriversCountResponse.json();
+            
+                const constructorsDriversCountElement = document.createElement('div');
+                constructorsDriversCountElement.textContent = 'Constructors drivers count:';
+                document.body.appendChild(constructorsDriversCountElement);
+                const listElement = document.createElement('ul');
+                constructorsDriversCountData.forEach(item => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${item.constructor}: ${item.drivers_count}`;
+                    listElement.appendChild(listItem);
+                });
+                document.body.appendChild(listElement);
+
+                // Show total races
+                const racesCountResponse = await fetch('/races/count');
+                const racesCountData = await racesCountResponse.json();
+
+                const racesCountElement = document.createElement('div');
+                racesCountElement.textContent = `Races: ${racesCountData.count}`;
+                document.body.appendChild(racesCountElement);
+
+                // Show circuits data
+                const circuitsResponse = await fetch('/circuits/overview');
+                const circuitsData = await circuitsResponse.json();
+            
+                const circuitsElement = document.createElement('div');
+                circuitsElement.textContent = 'Circuits:';
+                document.body.appendChild(circuitsElement);
+                const circuitsListElement = document.createElement('ul');
+                circuitsData.forEach(item => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${item.circuito_nome} - Races: ${item.corridas_por_circuito}, Max Laps: ${item.voltas_max}, Avg Laps: ${item.voltas_media.toFixed(2)}, Min Laps: ${item.voltas_min}, Total Laps: ${item.voltas_total}`;
+                    circuitsListElement.appendChild(listItem);
+                });
+                document.body.appendChild(circuitsListElement);
+
+
+                // Show seasons data
+                const seasonsResponse = await fetch('/seasons/races/count');
+                const seasonsData = await seasonsResponse.json();
+                
+                const seasonsElement = document.createElement('div');
+                seasonsElement.textContent = 'Seasons:';
+                document.body.appendChild(seasonsElement);
+                const seasonsListElement = document.createElement('ul');
+                
+                seasonsData.forEach(item => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${item.season} - Races: ${item.races_count}`;
+                    seasonsListElement.appendChild(listItem);
+                })
+                
+                document.body.appendChild(seasonsListElement);
+
+            } else if (roleData && roleData.Role === 'Escuderia') {
+                // Show button to go to /driver/create
+                const createDriverButton = document.createElement('button');
+                createDriverButton.textContent = 'Add a Driver';
+                createDriverButton.addEventListener('click', () => {
+                    window.location.href = '/driver/create';
+                });
+                document.body.appendChild(createDriverButton);
+
+                // Show the number of drivers for the user's constructor
+                const constructorName = originalIdData.Original_ID;
+                const driversCountResponse = await fetch(`/constructor/${constructorName}/drivers/count`);
+                const driversCountData = await driversCountResponse.json();
+            
+                const driversCountElement = document.createElement('div');
+                driversCountElement.textContent = `Drivers: ${driversCountData.count}`;
+                driversCountElement.classList.add('drivers-count');
+                document.body.appendChild(driversCountElement);
+
+                // Show victories count
+                const victoriesCountResponse = await fetch(`/constructor/${constructorName}/victories/count`);
+                const victoriesCountData = await victoriesCountResponse.json();
+                console.log('Victories count:', victoriesCountData);
+                const victoriesCountElement = document.createElement('div');
+                victoriesCountElement.textContent = `Victories: ${victoriesCountData.victories}`;
+                document.body.appendChild(victoriesCountElement);
+
+                
+                // Show the range of data for the user's constructor
+                const constructorDataRangeResponse = await fetch(`/constructor/${constructorName}/data_range`);
+                const constructorDataRangeData = await constructorDataRangeResponse.json();
+            
+                const constructorDataRangeElement = document.createElement('div');
+                constructorDataRangeElement.textContent = `Data range: (${constructorDataRangeData.start_year}, ${constructorDataRangeData.end_year})`;
+                document.body.appendChild(constructorDataRangeElement);
+            } else if (roleData && roleData.Role === 'Piloto') {
+                // Show the range of data for the user's driver
+                const driverName = originalIdData.Original_ID;
+                const driverDataRangeResponse = await fetch(`/driver/${driverName}/data_range`);
+                const driverDataRangeData = await driverDataRangeResponse.json();
+                const driverDataRangeElement = document.createElement('div');
+            
+                driverDataRangeElement.textContent = `Data range: (${driverDataRangeData.start_year}, ${driverDataRangeData.end_year})`;
+                document.body.appendChild(driverDataRangeElement);
+
+                // Show perfomance by season
+                const driverSeasonsResponse = await fetch(`/driver/${driverName}/performances/year`);
+                const driverSeasonsData = await driverSeasonsResponse.json();
+                
+                const driverSeasonsElement = document.createElement('div');
+                driverSeasonsElement.textContent = 'Performances by season:';
+                document.body.appendChild(driverSeasonsElement);
+                const driverSeasonsListElement = document.createElement('ul');
+                driverSeasonsData.forEach(item => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `Year: ${item.year} - Total Points: ${item.total_points}, Total Victories: ${item.total_victories}`;
+                    driverSeasonsListElement.appendChild(listItem);
+                });
+                document.body.appendChild(driverSeasonsListElement);
+
+                // Show performance by circuit
+                const driverCircuitsResponse = await fetch(`/driver/${driverName}/performances/circuit`);
+                const driverCircuitsData = await driverCircuitsResponse.json();
+                const driverCircuitsElement = document.createElement('div');
+                driverCircuitsElement.textContent = 'Performances by circuit:';
+                document.body.appendChild(driverCircuitsElement);
+                const driverCircuitsListElement = document.createElement('ul');
+                driverCircuitsData.forEach(item => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `Circuit: ${item.circuit_name} - Total Points: ${item.total_points}, Total Victories: ${item.total_victories}`;
+                    driverCircuitsListElement.appendChild(listItem);
+                });
+                document.body.appendChild(driverCircuitsListElement);
+            
+
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            document.querySelector('h1').textContent = '(Error loading data)';
+        }
+    });
+
+    </script>
+</body>
+</html>

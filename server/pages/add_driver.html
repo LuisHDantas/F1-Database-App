@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Driver</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .container h1 {
+            margin-bottom: 20px;
+        }
+        .container form {
+            display: flex;
+            flex-direction: column;
+        }
+        .container form label {
+            margin-bottom: 5px;
+        }
+        .container form input {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .container form button {
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            background-color: #28a745;
+            color: #fff;
+            cursor: pointer;
+        }
+        .container form button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Add New Driver</h1>
+        <form action="/driver/add" method="POST">
+            <label for="nome">First Name:</label>
+            <input type="text" id="nome" name="nome" required>
+
+            <label for="sobrenome">Last Name:</label>
+            <input type="text" id="sobrenome" name="sobrenome" required>
+
+            <label for="numero">Number:</label>
+            <input type="number" id="numero" name="numero" required>
+
+            <label for="codigo">Code:</label>
+            <input type="text" id="codigo" name="codigo" required>
+
+            <label for="datanascimento">Date of Birth:</label>
+            <input type="date" id="datanascimento" name="datanascimento" required>
+
+            <label for="nomepais">Country:</label>
+            <input type="text" id="nomepais" name="nomepais" required>
+
+            <button type="submit">Add Driver</button>
+        </form>
+    </div>
+</body>
+</html>

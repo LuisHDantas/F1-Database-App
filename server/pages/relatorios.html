@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório</title>
+    <style>
+    </style>
+</head>
+<body>
+    <h1>(Loading...)</h1>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            // Fetch the user ID and display it
+            const originalIdResponse = await fetch('/user/original_id');
+            const originalIdData = await originalIdResponse.json();
+            document.querySelector('h1').textContent = originalIdData.Original_ID ? `${originalIdData.Original_ID}` : '(ID not found)';
+            
+            // Fetch the user role and process accordingly
+            const roleResponse = await fetch('/user/role');
+            const roleData = await roleResponse.json();
+            
+            if (roleData && roleData.Role === 'Administrador') {
+                const statusCountResponse = await fetch('/status/count');
+                const statusCountData = await statusCountResponse.json();
+                const statusCountElement = document.createElement('div');
+                statusCountElement.textContent = 'Status count:';
+                document.body.appendChild(statusCountElement);
+                
+                const statusListElement = document.createElement('ul');
+                statusCountData.forEach(item => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${item.status}: ${item.count}`;
+                    statusListElement.appendChild(listItem);
+                });
+                document.body.appendChild(statusListElement);
+                
+            } else if (roleData && roleData.Role === 'Escuderia') {
+                // Show constructor drivers and wins
+                const constructorName = originalIdData.Original_ID;
+                const constructorDriversVictoriesResponse = await fetch(`/constructor/${constructorName}/drivers/victories`);
+                const constructorDriversVictoriesData = await constructorDriversVictoriesResponse.json();
+                const constructorDriversVictoriesElement = document.createElement('div');
+                constructorDriversVictoriesElement.textContent = 'Drivers victories:';
+                document.body.appendChild(constructorDriversVictoriesElement);
+
+                const constructorDriversVictoriesListElement = document.createElement('ul');
+                constructorDriversVictoriesData.forEach(item => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${item.driver}: ${item.wins} wins`;
+                    constructorDriversVictoriesListElement.appendChild(listItem);
+                });
+                document.body.appendChild(constructorDriversVictoriesListElement);
+
+                // Show constructor status count
+                
+                const constructorStatusCountResponse = await fetch(`/constructor/${constructorName}/status/count`);
+                const constructorStatusCountData = await constructorStatusCountResponse.json();
+                const constructorStatusCountElement = document.createElement('div');
+                console.log(constructorStatusCountData);
+                constructorStatusCountElement.textContent = 'Status count:';
+                document.body.appendChild(constructorStatusCountElement);
+                const constructorStatusCountListElement = document.createElement('ul');
+                constructorStatusCountData.forEach(item => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${item.status}: ${item.count}`;
+                    constructorStatusCountListElement.appendChild(listItem);
+                });
+                document.body.appendChild(constructorStatusCountListElement);
+
+            } else if (roleData && roleData.Role === 'Piloto') {
+                // Show wins summary
+                const driverName = originalIdData.Original_ID;
+                const driverVictoriesSummaryResponse = await fetch(`/driver/${driverName}/victories/summary`);
+                const driverVictoriesSummaryData = await driverVictoriesSummaryResponse.json();
+                const driverVictoriesSummaryElement = document.createElement('div');
+                driverVictoriesSummaryElement.textContent = 'Victories summary:';
+                document.body.appendChild(driverVictoriesSummaryElement);
+                const driverVictoriesSummaryListElement = document.createElement('ul');
+                driverVictoriesSummaryData.forEach(item => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = item.year === 0 ? `Total: ${item.victories} all time win(s)` : item.circuit === "" ? `${item.year}: ${item.victories} total win(s)` : `${item.year}: ${item.victories} win(s) at ${item.circuit}`;
+                    driverVictoriesSummaryListElement.appendChild(listItem);
+                });
+                document.body.appendChild(driverVictoriesSummaryListElement);
+            
+                // Show results summary
+                const driverResultsSummaryResponse = await fetch(`/driver/${driverName}/results/summary`);
+                const driverResultsSummaryData = await driverResultsSummaryResponse.json();
+                const driverResultsSummaryElement = document.createElement('div');
+                driverResultsSummaryElement.textContent = 'Results summary:';
+                document.body.appendChild(driverResultsSummaryElement);
+                const driverResultsSummaryListElement = document.createElement('ul');
+                driverResultsSummaryData.forEach(item => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${item.status}: ${item.count}`;
+                    driverResultsSummaryListElement.appendChild(listItem);
+                });
+                document.body.appendChild(driverResultsSummaryListElement);
+
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            document.querySelector('h1').textContent = '(Error loading data)';
+        }
+    });
+
+    </script>
+</body>
+</html>
