@@ -5,6 +5,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relatório</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        h1 {
+            font-size: 2em;
+            color: black;
+            text-align: center;
+        }
+
+        div {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                margin: 10px;
+            }
+
+            h1 {
+                font-size: 1.5em;
+            }
+
+            div {
+                padding: 5px;
+            }
+
+            th, td {
+                padding: 5px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -16,25 +70,74 @@
             const originalIdResponse = await fetch('/user/original_id');
             const originalIdData = await originalIdResponse.json();
             document.querySelector('h1').textContent = originalIdData.Original_ID ? `${originalIdData.Original_ID}` : '(ID not found)';
+
+
+        
             
             // Fetch the user role and process accordingly
             const roleResponse = await fetch('/user/role');
             const roleData = await roleResponse.json();
             
             if (roleData && roleData.Role === 'Administrador') {
+                // Allow user to input a city name and query for airports near /airports/close_to/:city
+                const cityInput = document.createElement('input');
+                cityInput.type = 'text';
+                cityInput.placeholder = 'Enter a city name';
+                document.body.appendChild(cityInput);
+
+                const cityButton = document.createElement('button');
+                cityButton.textContent = 'Search';
+                document.body.appendChild(cityButton);
+
+                const airportsTable = document.createElement('table');
+                const airportsTableHeader = document.createElement('thead');
+                airportsTableHeader.innerHTML = '<tr><th>City Name</th><th>IATA Code</th><th>Airport Name</th><th>Airport City</th><th>Distance (km)</th></tr>';
+                airportsTable.appendChild(airportsTableHeader);
+                const airportsTableBody = document.createElement('tbody');
+                airportsTable.appendChild(airportsTableBody);
+                document.body.appendChild(airportsTable);
+
+                cityButton.addEventListener('click', async () => {
+                    const cityName = cityInput.value;
+                    if (cityName) {
+                        const airportsResponse = await fetch(`/airports/close_to/${cityName}`);
+                        const airportsData = await airportsResponse.json();
+                        console.log(airportsData);
+                        
+                        // Clear previous table data
+                        airportsTableBody.innerHTML = '';
+
+                        airportsData.forEach(item => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `<td>${item.Nome_Cidade}</td><td>${item.Codigo_IATA || 'None'}</td><td>${item.Nome_Aeroporto}</td><td>${item.Cidade_Aeroporto}</td><td>${item.Distancia_km}</td>`;
+                            airportsTableBody.appendChild(row);
+                        });
+                    }
+                });
+
+
+
+                // Show status count
+
                 const statusCountResponse = await fetch('/status/count');
                 const statusCountData = await statusCountResponse.json();
                 const statusCountElement = document.createElement('div');
                 statusCountElement.textContent = 'Status count:';
                 document.body.appendChild(statusCountElement);
                 
-                const statusListElement = document.createElement('ul');
+                const statusTable = document.createElement('table');
+                const statusTableHeader = document.createElement('thead');
+                statusTableHeader.innerHTML = '<tr><th>Status</th><th>Count</th></tr>';
+                statusTable.appendChild(statusTableHeader);
+                const statusTableBody = document.createElement('tbody');
                 statusCountData.forEach(item => {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = `${item.status}: ${item.count}`;
-                    statusListElement.appendChild(listItem);
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${item.status}</td><td>${item.count}</td>`;
+                    statusTableBody.appendChild(row);
                 });
-                document.body.appendChild(statusListElement);
+                statusTable.appendChild(statusTableBody);
+                document.body.appendChild(statusTable);
+
                 
             } else if (roleData && roleData.Role === 'Escuderia') {
                 // Show constructor drivers and wins
@@ -45,29 +148,38 @@
                 constructorDriversVictoriesElement.textContent = 'Drivers victories:';
                 document.body.appendChild(constructorDriversVictoriesElement);
 
-                const constructorDriversVictoriesListElement = document.createElement('ul');
+                const driversTable = document.createElement('table');
+                const driversTableHeader = document.createElement('thead');
+                driversTableHeader.innerHTML = '<tr><th>Driver</th><th>Wins</th></tr>';
+                driversTable.appendChild(driversTableHeader);
+                const driversTableBody = document.createElement('tbody');
                 constructorDriversVictoriesData.forEach(item => {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = `${item.driver}: ${item.wins} wins`;
-                    constructorDriversVictoriesListElement.appendChild(listItem);
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${item.driver}</td><td>${item.wins}</td>`;
+                    driversTableBody.appendChild(row);
                 });
-                document.body.appendChild(constructorDriversVictoriesListElement);
+                driversTable.appendChild(driversTableBody);
+                document.body.appendChild(driversTable);
 
                 // Show constructor status count
-                
                 const constructorStatusCountResponse = await fetch(`/constructor/${constructorName}/status/count`);
                 const constructorStatusCountData = await constructorStatusCountResponse.json();
                 const constructorStatusCountElement = document.createElement('div');
-                console.log(constructorStatusCountData);
                 constructorStatusCountElement.textContent = 'Status count:';
                 document.body.appendChild(constructorStatusCountElement);
-                const constructorStatusCountListElement = document.createElement('ul');
+
+                const statusTable = document.createElement('table');
+                const statusTableHeader = document.createElement('thead');
+                statusTableHeader.innerHTML = '<tr><th>Status</th><th>Count</th></tr>';
+                statusTable.appendChild(statusTableHeader);
+                const statusTableBody = document.createElement('tbody');
                 constructorStatusCountData.forEach(item => {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = `${item.status}: ${item.count}`;
-                    constructorStatusCountListElement.appendChild(listItem);
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${item.status}</td><td>${item.count}</td>`;
+                    statusTableBody.appendChild(row);
                 });
-                document.body.appendChild(constructorStatusCountListElement);
+                statusTable.appendChild(statusTableBody);
+                document.body.appendChild(statusTable);
 
             } else if (roleData && roleData.Role === 'Piloto') {
                 // Show wins summary
@@ -77,13 +189,27 @@
                 const driverVictoriesSummaryElement = document.createElement('div');
                 driverVictoriesSummaryElement.textContent = 'Victories summary:';
                 document.body.appendChild(driverVictoriesSummaryElement);
-                const driverVictoriesSummaryListElement = document.createElement('ul');
+
+                const victoriesTable = document.createElement('table');
+                const victoriesTableHeader = document.createElement('thead');
+                victoriesTableHeader.innerHTML = '<tr><th>Year</th><th>Victories</th><th>Moment</th></tr>';
+                victoriesTable.appendChild(victoriesTableHeader);
+                const victoriesTableBody = document.createElement('tbody');
                 driverVictoriesSummaryData.forEach(item => {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = item.year === 0 ? `Total: ${item.victories} all time win(s)` : item.circuit === "" ? `${item.year}: ${item.victories} total win(s)` : `${item.year}: ${item.victories} win(s) at ${item.circuit}`;
-                    driverVictoriesSummaryListElement.appendChild(listItem);
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${item.year === 0 ? 'Total' : item.year}</td><td>${item.victories}</td><td>${item.year === 0 ? 'To date' : (item.circuit || 'All season')}</td>`;
+                    if (item.circuit === '') {
+                        if (item.year === 0) {
+                            row.style.backgroundColor = '#4caf50'; // Highlight the row with a green background
+                        } else {
+                            row.style.backgroundColor = '#ffeb3b'; // Highlight the row with a yellow background
+                    
+                        }
+                    }
+                        victoriesTableBody.appendChild(row);
                 });
-                document.body.appendChild(driverVictoriesSummaryListElement);
+                victoriesTable.appendChild(victoriesTableBody);
+                document.body.appendChild(victoriesTable);
             
                 // Show results summary
                 const driverResultsSummaryResponse = await fetch(`/driver/${driverName}/results/summary`);
@@ -91,13 +217,19 @@
                 const driverResultsSummaryElement = document.createElement('div');
                 driverResultsSummaryElement.textContent = 'Results summary:';
                 document.body.appendChild(driverResultsSummaryElement);
-                const driverResultsSummaryListElement = document.createElement('ul');
+
+                const resultsTable = document.createElement('table');
+                const resultsTableHeader = document.createElement('thead');
+                resultsTableHeader.innerHTML = '<tr><th>Status</th><th>Count</th></tr>';
+                resultsTable.appendChild(resultsTableHeader);
+                const resultsTableBody = document.createElement('tbody');
                 driverResultsSummaryData.forEach(item => {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = `${item.status}: ${item.count}`;
-                    driverResultsSummaryListElement.appendChild(listItem);
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td>${item.status}</td><td>${item.count}</td>`;
+                    resultsTableBody.appendChild(row);
                 });
-                document.body.appendChild(driverResultsSummaryListElement);
+                resultsTable.appendChild(resultsTableBody);
+                document.body.appendChild(resultsTable);
 
             }
         } catch (error) {

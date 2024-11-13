@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .search-container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .search-container h1 {
+            margin-bottom: 20px;
+        }
+        .search-container input[type="text"] {
+            width: 95%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .search-container button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .search-container button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+    <script>
+        async function setOriginalId() {
+            try {
+                // Fetch the original ID from the server
+                const response = await fetch('/user/original_id');
+                const data = await response.json();
+                
+                // Check if Original_ID is present in the response
+                const originalId = data.Original_ID || '(ID not found)';
+                
+                // Set the form action dynamically with Original_ID
+                const form = document.getElementById('driverSearchForm');
+                form.action = `/constructor/${originalId}/driver/search`;
+
+                // Update the title with Original_ID
+                document.querySelector('h1').textContent = `Search for a ${originalId} driver`;
+            } catch (error) {
+                console.error('Error fetching Original_ID:', error);
+            }
+        }
+
+        // Call the function after the page loads
+        window.onload = setOriginalId;
+    </script>
+</head>
+<body>
+    <div class="search-container">
+        <h1>Search for a Driver</h1>
+        <form id="driverSearchForm" method="GET">
+            <input type="text" name="surname" placeholder="Enter driver's surname" required>
+            <button type="submit">Search</button>
+        </form>
+    </div>
+</body>
+</html>

@@ -216,3 +216,9 @@ AFTER INSERT ON PILOTOS
 FOR EACH ROW
 EXECUTE FUNCTION trg_after_driver_insert();
 
+
+
+
+-- AEROPORTOS
+
+CREATE INDEX idx_city_name_coordinates ON CIDADES (Nome, Lat, Long);

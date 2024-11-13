@@ -5,21 +5,91 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Overview</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            text-align: center;
+            margin-top: 50px;
+            color: #333;
+        }
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
         .admin {
             color: red;
             font-size: 2em;
             font-weight: bold;
-        }
-        .drivers-count {
-            color: blue;
-            font-size: 1.5em;
+            text-align: center;
             margin-top: 20px;
+        }
+        .info-box {
+            color: #333;
+            font-size: 1.2em;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            width: 80%;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background-color: #e9e9e9;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .section-title {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #007BFF;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
         }
     </style>
 </head>
 <body>
-    <h1>(Loading...)</h1>
-    <button id="reportButton">Go to Report</button>
+    <div class="container">
+        <h1>(Loading...)</h1>
+        <button id="reportButton">Go to Report</button>
+    </div>
     <script>
         document.getElementById('reportButton').addEventListener('click', () => {
             window.location.href = '/report';
@@ -28,6 +98,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
         try {
+            const container = document.querySelector('.container');
+
             // Fetch the user ID and display it
             const originalIdResponse = await fetch('/user/original_id');
             const originalIdData = await originalIdResponse.json();
@@ -44,7 +116,7 @@
                 createDriverButton.addEventListener('click', () => {
                     window.location.href = '/driver/create';
                 });
-                document.body.appendChild(createDriverButton);
+                container.appendChild(createDriverButton);
 
                 // Show button to go to /constructor/create
                 const createConstructorButton = document.createElement('button');
@@ -52,87 +124,90 @@
                 createConstructorButton.addEventListener('click', () => {
                     window.location.href = '/constructor/create';
                 });
-                document.body.appendChild(createConstructorButton);
+                container.appendChild(createConstructorButton);
 
                 // Show that the role is ADMINISTRADOR
                 const roleElement = document.createElement('div');
                 roleElement.textContent = 'ADMINISTRADOR';
                 roleElement.classList.add('admin');
-                document.body.appendChild(roleElement);
-
+                container.appendChild(roleElement);
 
                 // Show total number of drivers
                 const driversCountResponse = await fetch('/drivers/count');
                 const driversCountData = await driversCountResponse.json();
-            
                 const driversCountElement = document.createElement('div');
                 driversCountElement.textContent = `Drivers: ${driversCountData.count}`;
-                driversCountElement.classList.add('drivers-count');
-                document.body.appendChild(driversCountElement);
+                driversCountElement.classList.add('info-box');
+                container.appendChild(driversCountElement);
 
                 // Show number of drivers per constructor
                 const num_constructors = await fetch('/constructors/count');
                 const num_constructors_data = await num_constructors.json();
-                console.log('Number of constructors:', num_constructors_data);
-
                 const num_constructors_element = document.createElement('div');
                 num_constructors_element.textContent = `Number of constructors: ${num_constructors_data.count}`;
-                document.body.appendChild(num_constructors_element);
+                num_constructors_element.classList.add('info-box');
+                container.appendChild(num_constructors_element);
 
                 const constructorsDriversCountResponse = await fetch('/constructors/drivers/count');
                 const constructorsDriversCountData = await constructorsDriversCountResponse.json();
-            
                 const constructorsDriversCountElement = document.createElement('div');
                 constructorsDriversCountElement.textContent = 'Constructors drivers count:';
-                document.body.appendChild(constructorsDriversCountElement);
-                const listElement = document.createElement('ul');
+                constructorsDriversCountElement.classList.add('info-box');
+                container.appendChild(constructorsDriversCountElement);
+                const tableElement = document.createElement('table');
+                const tableHeader = document.createElement('tr');
+                tableHeader.innerHTML = '<th>Constructor</th><th>Drivers Count</th>';
+                tableElement.appendChild(tableHeader);
                 constructorsDriversCountData.forEach(item => {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = `${item.constructor}: ${item.drivers_count}`;
-                    listElement.appendChild(listItem);
+                    const tableRow = document.createElement('tr');
+                    tableRow.innerHTML = `<td>${item.constructor}</td><td>${item.drivers_count}</td>`;
+                    tableElement.appendChild(tableRow);
                 });
-                document.body.appendChild(listElement);
+                container.appendChild(tableElement);
 
                 // Show total races
                 const racesCountResponse = await fetch('/races/count');
                 const racesCountData = await racesCountResponse.json();
-
                 const racesCountElement = document.createElement('div');
                 racesCountElement.textContent = `Races: ${racesCountData.count}`;
-                document.body.appendChild(racesCountElement);
+                racesCountElement.classList.add('info-box');
+                container.appendChild(racesCountElement);
 
                 // Show circuits data
                 const circuitsResponse = await fetch('/circuits/overview');
                 const circuitsData = await circuitsResponse.json();
-            
                 const circuitsElement = document.createElement('div');
                 circuitsElement.textContent = 'Circuits:';
-                document.body.appendChild(circuitsElement);
-                const circuitsListElement = document.createElement('ul');
+                circuitsElement.classList.add('info-box');
+                container.appendChild(circuitsElement);
+                const circuitsTableElement = document.createElement('table');
+                const circuitsTableHeader = document.createElement('tr');
+                circuitsTableHeader.innerHTML = '<th>Circuit</th><th>Races</th><th>Max Laps</th><th>Avg Laps</th><th>Min Laps</th><th>Total Laps</th>';
+                circuitsTableElement.appendChild(circuitsTableHeader);
                 circuitsData.forEach(item => {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = `${item.circuito_nome} - Races: ${item.corridas_por_circuito}, Max Laps: ${item.voltas_max}, Avg Laps: ${item.voltas_media.toFixed(2)}, Min Laps: ${item.voltas_min}, Total Laps: ${item.voltas_total}`;
-                    circuitsListElement.appendChild(listItem);
+                    const tableRow = document.createElement('tr');
+                    tableRow.innerHTML = `<td>${item.circuito_nome}</td><td>${item.corridas_por_circuito}</td><td>${item.voltas_max}</td><td>${item.voltas_media.toFixed(2)}</td><td>${item.voltas_min}</td><td>${item.voltas_total}</td>`;
+                    circuitsTableElement.appendChild(tableRow);
                 });
-                document.body.appendChild(circuitsListElement);
-
+                container.appendChild(circuitsTableElement);
 
                 // Show seasons data
                 const seasonsResponse = await fetch('/seasons/races/count');
                 const seasonsData = await seasonsResponse.json();
-                
                 const seasonsElement = document.createElement('div');
                 seasonsElement.textContent = 'Seasons:';
-                document.body.appendChild(seasonsElement);
-                const seasonsListElement = document.createElement('ul');
-                
+                seasonsElement.classList.add('info-box');
+                container.appendChild(seasonsElement);
+                const seasonsTableElement = document.createElement('table');
+                const seasonsTableHeader = document.createElement('tr');
+                seasonsTableHeader.innerHTML = '<th>Season</th><th>Races</th>';
+                seasonsTableElement.appendChild(seasonsTableHeader);
                 seasonsData.forEach(item => {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = `${item.season} - Races: ${item.races_count}`;
-                    seasonsListElement.appendChild(listItem);
-                })
-                
-                document.body.appendChild(seasonsListElement);
+                    const tableRow = document.createElement('tr');
+                    tableRow.innerHTML = `<td>${item.season}</td><td>${item.races_count}</td>`;
+                    seasonsTableElement.appendChild(tableRow);
+                });
+                container.appendChild(seasonsTableElement);
 
             } else if (roleData && roleData.Role === 'Escuderia') {
                 // Show button to go to /driver/create
@@ -141,81 +216,92 @@
                 createDriverButton.addEventListener('click', () => {
                     window.location.href = '/driver/create';
                 });
-                document.body.appendChild(createDriverButton);
+                container.appendChild(createDriverButton);
+
+                // Show button to go to /driver/search
+                const searchDriverButton = document.createElement('button');
+                searchDriverButton.textContent = 'Search for a Driver';
+                searchDriverButton.addEventListener('click', () => {
+                    window.location.href = '/driver/search';
+                });
+                container.appendChild(searchDriverButton);
 
                 // Show the number of drivers for the user's constructor
                 const constructorName = originalIdData.Original_ID;
                 const driversCountResponse = await fetch(`/constructor/${constructorName}/drivers/count`);
                 const driversCountData = await driversCountResponse.json();
-            
                 const driversCountElement = document.createElement('div');
                 driversCountElement.textContent = `Drivers: ${driversCountData.count}`;
-                driversCountElement.classList.add('drivers-count');
-                document.body.appendChild(driversCountElement);
+                driversCountElement.classList.add('info-box');
+                container.appendChild(driversCountElement);
 
                 // Show victories count
                 const victoriesCountResponse = await fetch(`/constructor/${constructorName}/victories/count`);
                 const victoriesCountData = await victoriesCountResponse.json();
-                console.log('Victories count:', victoriesCountData);
                 const victoriesCountElement = document.createElement('div');
                 victoriesCountElement.textContent = `Victories: ${victoriesCountData.victories}`;
-                document.body.appendChild(victoriesCountElement);
+                victoriesCountElement.classList.add('info-box');
+                container.appendChild(victoriesCountElement);
 
-                
                 // Show the range of data for the user's constructor
                 const constructorDataRangeResponse = await fetch(`/constructor/${constructorName}/data_range`);
                 const constructorDataRangeData = await constructorDataRangeResponse.json();
-            
                 const constructorDataRangeElement = document.createElement('div');
                 constructorDataRangeElement.textContent = `Data range: (${constructorDataRangeData.start_year}, ${constructorDataRangeData.end_year})`;
-                document.body.appendChild(constructorDataRangeElement);
+                constructorDataRangeElement.classList.add('info-box');
+                container.appendChild(constructorDataRangeElement);
+
             } else if (roleData && roleData.Role === 'Piloto') {
                 // Show the range of data for the user's driver
                 const driverName = originalIdData.Original_ID;
                 const driverDataRangeResponse = await fetch(`/driver/${driverName}/data_range`);
                 const driverDataRangeData = await driverDataRangeResponse.json();
                 const driverDataRangeElement = document.createElement('div');
-            
                 driverDataRangeElement.textContent = `Data range: (${driverDataRangeData.start_year}, ${driverDataRangeData.end_year})`;
-                document.body.appendChild(driverDataRangeElement);
+                driverDataRangeElement.classList.add('info-box');
+                container.appendChild(driverDataRangeElement);
 
-                // Show perfomance by season
+                // Show performance by season
                 const driverSeasonsResponse = await fetch(`/driver/${driverName}/performances/year`);
                 const driverSeasonsData = await driverSeasonsResponse.json();
-                
                 const driverSeasonsElement = document.createElement('div');
                 driverSeasonsElement.textContent = 'Performances by season:';
-                document.body.appendChild(driverSeasonsElement);
-                const driverSeasonsListElement = document.createElement('ul');
+                driverSeasonsElement.classList.add('info-box');
+                container.appendChild(driverSeasonsElement);
+                const driverSeasonsTableElement = document.createElement('table');
+                const driverSeasonsTableHeader = document.createElement('tr');
+                driverSeasonsTableHeader.innerHTML = '<th>Year</th><th>Total Points</th><th>Total Victories</th>';
+                driverSeasonsTableElement.appendChild(driverSeasonsTableHeader);
                 driverSeasonsData.forEach(item => {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = `Year: ${item.year} - Total Points: ${item.total_points}, Total Victories: ${item.total_victories}`;
-                    driverSeasonsListElement.appendChild(listItem);
+                    const tableRow = document.createElement('tr');
+                    tableRow.innerHTML = `<td>${item.year}</td><td>${item.total_points}</td><td>${item.total_victories}</td>`;
+                    driverSeasonsTableElement.appendChild(tableRow);
                 });
-                document.body.appendChild(driverSeasonsListElement);
+                container.appendChild(driverSeasonsTableElement);
 
                 // Show performance by circuit
                 const driverCircuitsResponse = await fetch(`/driver/${driverName}/performances/circuit`);
                 const driverCircuitsData = await driverCircuitsResponse.json();
                 const driverCircuitsElement = document.createElement('div');
                 driverCircuitsElement.textContent = 'Performances by circuit:';
-                document.body.appendChild(driverCircuitsElement);
-                const driverCircuitsListElement = document.createElement('ul');
+                driverCircuitsElement.classList.add('info-box');
+                container.appendChild(driverCircuitsElement);
+                const driverCircuitsTableElement = document.createElement('table');
+                const driverCircuitsTableHeader = document.createElement('tr');
+                driverCircuitsTableHeader.innerHTML = '<th>Circuit</th><th>Total Points</th><th>Total Victories</th>';
+                driverCircuitsTableElement.appendChild(driverCircuitsTableHeader);
                 driverCircuitsData.forEach(item => {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = `Circuit: ${item.circuit_name} - Total Points: ${item.total_points}, Total Victories: ${item.total_victories}`;
-                    driverCircuitsListElement.appendChild(listItem);
+                    const tableRow = document.createElement('tr');
+                    tableRow.innerHTML = `<td>${item.circuit_name}</td><td>${item.total_points}</td><td>${item.total_victories}</td>`;
+                    driverCircuitsTableElement.appendChild(tableRow);
                 });
-                document.body.appendChild(driverCircuitsListElement);
-            
-
+                container.appendChild(driverCircuitsTableElement);
             }
         } catch (error) {
             console.error('Error:', error);
             document.querySelector('h1').textContent = '(Error loading data)';
         }
     });
-
     </script>
 </body>
 </html>

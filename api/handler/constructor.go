@@ -229,3 +229,52 @@ func Constructor_add(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Constructor added successfully"})
 }
+
+func Constructor_driver_search(c *gin.Context) {
+	var form struct {
+		Surname string `form:"surname"`
+	}
+
+	if err := c.ShouldBind(&form); err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+
+	constructorName := c.Param("name")
+	driverSurname := form.Surname
+
+	query := `
+		SELECT p.nome AS nome_completo,
+			   p.datanascimento AS data_nascimento,
+			   p.nomepais AS nacionalidade
+		FROM PILOTOS p
+		JOIN RESULTADOS r ON p.nome = r.nomepiloto
+		WHERE p.nome LIKE '%' || $1 || '%'
+		  AND r.idconstrutor = (SELECT id FROM construtores WHERE nome = $2)
+		GROUP BY p.nome, p.datanascimento, p.nomepais;
+	`
+
+	rows, err := database.DB.Query(query, driverSurname, constructorName)
+	if err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+	defer rows.Close()
+
+	drivers := []gin.H{}
+	for rows.Next() {
+		var name, birthDate, nationality string
+		if err := rows.Scan(&name, &birthDate, &nationality); err != nil {
+			c.JSON(500, gin.H{"error": err.Error()})
+			return
+		}
+		drivers = append(drivers, gin.H{"name": name, "birth_date": birthDate, "nationality": nationality})
+	}
+
+	if err := rows.Err(); err != nil {
+		c.JSON(500, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(200, drivers)
+}

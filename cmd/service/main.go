@@ -13,10 +13,6 @@ import (
 )
 
 func main() {
-	// TODO: Check later
-	// gin.SetMode(gin.ReleaseMode) //optional to not get warning
-	// route.SetTrustedProxies([]string{"192.168.1.2"}) //to trust only a specific value
-
 	router := gin.Default()
 	database.ConnectDatabase()
 	// Set up session middleware
@@ -43,6 +39,10 @@ func main() {
 
 	router.GET("/constructor/create", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "add_constructor.html", nil)
+	})
+
+	router.GET("/driver/search", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "driver_search.html", nil)
 	})
 
 	router.POST("/login", handler.Login)
@@ -96,6 +96,10 @@ func main() {
 		protected.GET("/driver/:name/victories/summary", handler.Driver_wins_summary)
 
 		protected.GET("/driver/:name/results/summary", handler.Driver_results_summary)
+
+		protected.GET("/constructor/:name/driver/search", handler.Constructor_driver_search)
+
+		protected.GET("/airports/close_to/:city", handler.Airports_close_to)
 
 		protected.POST("/driver/add", handler.Driver_add)
 
