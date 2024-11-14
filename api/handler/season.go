@@ -5,6 +5,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Season_races_count handles the HTTP request to retrieve the count of races for each season.
+// It executes a SQL query to count the number of races grouped by season and returns the result as JSON.
+//
+// @Summary Retrieve race counts by season
+// @Description Retrieves the number of races for each season from the database and returns the result as a JSON array.
+// @Tags seasons
+// @Produce json
+// @Success 200 {array} gin.H "List of seasons with their respective race counts"
+// @Failure 500 {object} gin.H "Internal server error"
+// @Router /seasons/races/count [get]
+//
+// @param c *gin.Context - The Gin context for the request.
 func Season_races_count(c *gin.Context) {
 	query := `
 	SELECT

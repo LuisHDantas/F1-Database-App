@@ -1,3 +1,5 @@
+
+-- Returns the number of times each status appears in the RESULTS table
 CREATE OR REPLACE FUNCTION admin_report_status_counts()
 RETURNS TABLE (
     status_name VARCHAR,
@@ -17,31 +19,12 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
------
-
-
-
-
--- Create an index
+-- Create indexes
 CREATE INDEX idx_resultados_constructor_pilot_position ON RESULTADOS (idconstrutor, nomepiloto, posicaofinal);
 CREATE INDEX idx_construtores_nome ON CONSTRUTORES (Nome);
 
+
+-- Returns each driver's name and the number of victories they have for a given constructor
 CREATE OR REPLACE FUNCTION get_constructor_driver_wins(constructor_name VARCHAR)
 RETURNS TABLE (
     driver_name VARCHAR,
@@ -67,7 +50,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
+-- Returns the number of times each status appears in the RESULTS table for a given constructor
 CREATE OR REPLACE FUNCTION get_constructor_status_count(constructor_name VARCHAR)
 RETURNS TABLE (
     status_description VARCHAR,
@@ -92,10 +75,11 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-----
 
+-- Create index
 CREATE INDEX idx_resultados_pilot_victories ON RESULTADOS (nomepiloto, posicaofinal, idcorrida);
 
+-- Returns a summary of the victories of a given driver
 CREATE OR REPLACE FUNCTION get_driver_victories_summary(driver_name VARCHAR)
 RETURNS TABLE (
     year NUMERIC,
@@ -123,9 +107,11 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-
+-- Create index
 CREATE INDEX idx_resultados_pilot_status ON RESULTADOS (nomepiloto, descricaostatus);
 
+
+-- Returns the number of times each status appears in the RESULTS table for a given driver
 CREATE OR REPLACE FUNCTION get_driver_results_by_status(driver_name VARCHAR)
 RETURNS TABLE (
     status_description VARCHAR,
@@ -148,8 +134,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 
----
-
+-- Create trigger to insert a new user in the USERS table when a new constructor is inserted
 CREATE OR REPLACE FUNCTION trg_after_constructor_insert()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -183,7 +168,7 @@ FOR EACH ROW
 EXECUTE FUNCTION trg_after_constructor_insert();
 
 
-
+-- Create trigger to insert a new user in the USERS table when a new driver is inserted
 CREATE OR REPLACE FUNCTION trg_after_driver_insert()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -217,8 +202,5 @@ FOR EACH ROW
 EXECUTE FUNCTION trg_after_driver_insert();
 
 
-
-
--- AEROPORTOS
-
+-- Create index
 CREATE INDEX idx_city_name_coordinates ON CIDADES (Nome, Lat, Long);

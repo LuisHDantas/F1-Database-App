@@ -1,3 +1,7 @@
+
+-- CONSTRUCTORS
+
+-- Returns the number of victories for a given constructor
 CREATE OR REPLACE FUNCTION get_constructor_victories(constructor_name VARCHAR)
 RETURNS INTEGER AS $$
 DECLARE
@@ -14,7 +18,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
+-- Returns the number of drivers that have driven for a given constructor
 CREATE OR REPLACE FUNCTION get_unique_driver_count(constructor_name VARCHAR)
 RETURNS INTEGER AS $$
 DECLARE
@@ -30,7 +34,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
+-- Returns the data range for a given constructor
 CREATE OR REPLACE FUNCTION get_constructor_year_range(constructor_name VARCHAR)
 RETURNS TABLE (first_year SMALLINT, last_year SMALLINT) AS $$
 BEGIN
@@ -43,9 +47,9 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- PILOTOS
+-- DRIVERS
 
-
+-- Returns the data range for a given driver
 CREATE OR REPLACE FUNCTION get_driver_year_range(pilot_name VARCHAR)
 RETURNS TABLE (first_year SMALLINT, last_year SMALLINT) AS $$
 BEGIN
@@ -58,40 +62,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
--- CREATE OR REPLACE FUNCTION get_driver_competition_summary(driver_name VARCHAR)
--- RETURNS TABLE (
---     year SMALLINT,
---     circuit_name VARCHAR,
---     total_points BIGINT,
---     victory SMALLINT
--- ) AS $$
--- BEGIN
---     RETURN QUERY
---     SELECT 
---         CO.Ano AS year,
---         CI.Nome AS circuit_name,
---         SUM(R.qtdpontos) AS total_points,
---         COUNT(CASE WHEN R.posicaoFinal = 1 THEN 1 END)::SMALLINT AS total_victories
---     FROM 
---         RESULTADOS R
---     JOIN 
---         PILOTOS P ON R.nomepiloto = P.Nome
---     JOIN 
---         CORRIDAS CO ON R.idcorrida = CO.ID
---     JOIN 
---         CIRCUITOS CI ON CO.nomecircuito = CI.Nome
---     WHERE 
---         P.Nome = driver_name
---     GROUP BY 
---         CO.Ano, CI.Nome
---     ORDER BY 
---         CO.Ano, CI.Nome;
--- END;
--- $$ LANGUAGE plpgsql;
-
-
-
+-- Returns points and victories for a given driver by year
 CREATE OR REPLACE FUNCTION get_driver_performance_by_year(driver_name VARCHAR)
 RETURNS TABLE (
     year SMALLINT,
@@ -119,6 +90,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Returns points and victories for a given driver by circuit
 CREATE OR REPLACE FUNCTION get_driver_performance_by_circuit(driver_name VARCHAR)
 RETURNS TABLE (
     circuit_name VARCHAR,

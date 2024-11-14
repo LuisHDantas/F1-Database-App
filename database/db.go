@@ -15,6 +15,18 @@ func GetDB() *sql.DB {
 	return DB
 }
 
+// ConnectDatabase establishes a connection to the PostgreSQL database using
+// environment variables from a .env file. It constructs the connection string,
+// opens the connection, assigns the database handle to the global variable DB,
+// and prints a success message. If any error occurs, it prints an error message
+// and panics. It also pings the database to ensure the connection is valid.
+//
+// Environment Variables:
+// - DB_NAME: Database name
+// - DB_PORT: Database port
+// - DB_USER: Database user
+// - DB_HOST: Database host
+// - DB_PASSWORD: Database password
 func ConnectDatabase() {
 
 	err := godotenv.Load()
@@ -47,5 +59,4 @@ func ConnectDatabase() {
 	if err != nil {
 		fmt.Println("Error on .env file.", err)
 	}
-
 }

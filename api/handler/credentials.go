@@ -10,11 +10,22 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// hash_password hashes a given password using the MD5 algorithm.
+//
+// @param password The password to be hashed.
+// @returns The MD5 hash of the password as a hexadecimal string.
 func hash_password(password string) string {
 	hash := md5.Sum([]byte(password))
 	return hex.EncodeToString(hash[:])
 }
 
+// store_login_log logs a user's login event in the database.
+//
+// @summary Logs a user's login event.
+//
+// @params id int - The ID of the user logging in.
+//
+// @returns error - An error object if the operation fails, otherwise nil.
 func store_login_log(id int) error {
 	query := "INSERT INTO log_table (user_id, login_date, login_time) VALUES ($1, CURRENT_DATE, CURRENT_TIME)"
 
@@ -23,6 +34,11 @@ func store_login_log(id int) error {
 	return err
 }
 
+// Login handles user login by verifying credentials and starting a session.
+//
+// @summary Handles user login
+// @params c *gin.Context - The Gin context containing the request data
+// @returns void
 func Login(c *gin.Context) {
 	username := c.PostForm("username")
 	password := c.PostForm("password")
@@ -63,6 +79,10 @@ func Login(c *gin.Context) {
 	}
 }
 
+// Logout handles the user logout process by clearing the session and returning a success message.
+// @summary Handles user logout
+// @params c *gin.Context - the context for the current request
+// @returns void
 func Logout(c *gin.Context) {
 	session := sessions.Default(c)
 	session.Clear()

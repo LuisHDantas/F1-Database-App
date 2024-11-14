@@ -7,6 +7,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Airports_close_to handles the request to find airports close to a given city in Brazil.
+//
+// @summary Finds airports within 100 km of a specified city in Brazil.
+// @params c *gin.Context - The Gin context, which contains the request parameters.
+// @returns JSON response with a list of airports and their distances from the specified city, or an error message if the query fails.
 func Airports_close_to(c *gin.Context) {
 	query := `
 	SELECT 

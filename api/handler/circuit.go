@@ -7,6 +7,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Circuits_overview handles the request to get an overview of circuits.
+// It queries the database to retrieve information about circuits, including the number of races per circuit,
+// total laps, minimum, average, and maximum lap counts per race in each circuit.
+// The results are returned in JSON format.
+//
+// @summary Get an overview of circuits
+// @params c *gin.Context - The Gin context for the request
+// @returns JSON response containing the overview of circuits or an error message
 func Circuits_overview(c *gin.Context) {
 	query := `
 	SELECT
