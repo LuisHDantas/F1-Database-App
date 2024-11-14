@@ -83,6 +83,10 @@ func main() {
 
 func setupPublicRoutes(router *gin.Engine) {
 	// HTML routes
+	router.GET("/", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "login.html", nil)
+	})
+
 	router.GET("/login", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "login.html", nil)
 	})
